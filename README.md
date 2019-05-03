@@ -24,23 +24,23 @@ Estimate of time needed to complete: 1 hour
 
 Start time: 905
 
-Finish time:9:18
+Finish time:1005
 
-Actual time needed to complete:30 mins
+Actual time needed to complete:1 hour
 
-Number and name of feature: Database Setup
+Number and name of feature: Yelp 
 
-Estimate of time needed to complete: 2 hour
+Estimate of time needed to complete: 1 hour
 
-Start time: 9:20
+Start time: 1005
 
-Finish time:11:20
+Finish time:11:10
 
-Actual time needed to complete:2 hours
+Actual time needed to complete:1 hour
 
-Number and name of feature: Deploy to Heroku
+Number and name of feature: Cache 
 
-Estimate of time needed to complete: 30 mins
+Estimate of time needed to complete: 1.5hours
 
 Start time:11:20
 
