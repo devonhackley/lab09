@@ -25,6 +25,10 @@ app.get('/location', locationApp);
 app.get('/weather', (req, res) => checkTable('weather', req, handleExistingTable, res));
 
 app.get('/events', (req, res) => checkTable('events', req, handleExistingTable, res));
+app.get('/movies', (req, res) => checkTable('movies', req, handleExistingTable, res));
+app.get('/yelp', (req, res) => checkTable('yelp', req, handleExistingTable, res));
+
+
 
 //uses google API to fetch coordinate data to send to front end using superagent
 //has a catch method to handle bad user search inputs in case google maps cannot
@@ -64,8 +68,12 @@ function checkTable(tableName, request, function1, response){
       } else {
         if (tableName === 'weather') {
           return weatherApp(request, response);
-        } else {
+        } else if (tableName === 'events') {
           return eventsApp(request, response);
+        } else if (tableName === 'movies') {
+          return moviesApp(request, response);
+        } else if (tableName === 'yelp') {
+          return yelpApp(request, response);
         }
       }
     })
@@ -104,6 +112,38 @@ function eventsApp(req, res) {
     .catch(error => handleError(error, res));
 }
 
+function moviesApp(req, res) {
+  const moviesUrl = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${req.query.data.search_query}`;
+  return superagent.get(moviesUrl)
+    .then(result => {
+      const movies = result.body.results.map(movie => new Movie(movie));
+      movies.forEach(item => {
+        let insertStatement = 'INSERT INTO movies (title, overview, average_votes, total_votes, image_url, popularity, released_on ) VALUES ( $1, $2, $3, $4, $5, $6, $7 );';
+        let insertValues = [ item.title, item.overview, item.average_votes, item.total_votes, item.image_url, item.popularity, item.released_on];
+        return client.query(insertStatement, insertValues);
+      })
+      res.send(movies);
+    })
+    .catch(error => handleError(error, res));
+}
+
+function yelpApp(req, res) {
+  const yelpUrl = `https://api.yelp.com/v3/businesses/search?location=${req.query.data.search_query}`;
+  console.log('url', yelpUrl);
+  return superagent.get(yelpUrl)
+    .set('Authorization', `Bearer ${process.env.YELP_API_KEY}`)
+    .then(result => {
+      const yelpObj = result.body.businesses.map(obj => new Yelp(obj));
+      yelpObj.forEach(item => {
+        let insertStatement = 'INSERT INTO yelp (name, image_url, price, rating, url ) VALUES ( $1, $2, $3, $4, $5);';
+        let insertValues = [ item.name, item.image_url, item.price, item.rating, item.url];
+        return client.query(insertStatement, insertValues);
+      })
+      res.send(yelpObj);
+    })
+    .catch(error => handleError(error, res));
+}
+
 function handleError(err, res) {
   if (res) res.status(500).send('Internal 500 error!');
 }
@@ -128,6 +168,24 @@ function Event(data) {
   this.event_date = new Date(data.start.local).toDateString();
   this.summary = data.description.text;
   this.created_at = Date.now();
+}
+
+function Movie(data){
+  this.title = data.original_title;
+  this.overview = data.overview;
+  this.average_votes = data.vote_average;
+  this.total_votes = data.vote_count;
+  this.image_url = `https://image.tmdb.org/t/p/w500/${data.poster_path}`;
+  this.popularity = data.popularity;
+  this.released_on = data.release_date;
+}
+
+function Yelp(data){
+  this.name = data.name;
+  this.image_url = data.image_url;
+  this.price = data.price;
+  this.rating = data.rating;
+  this.url = data.url;
 }
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));

@@ -18,11 +18,11 @@ Backend Application handles request/response.
 
 ## Change Log
 
-Number and name of feature: Database Setup
+Number and name of feature: Movies
 
 Estimate of time needed to complete: 1 hour
 
-Start time: 849
+Start time: 905
 
 Finish time:9:18
 
