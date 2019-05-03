@@ -42,9 +42,9 @@ Number and name of feature: Cache
 
 Estimate of time needed to complete: 1.5hours
 
-Start time:11:20
+Start time:11:30
 
-Finish time:1:00
+Finish time:1:30
 
 Actual time needed to complete:2.5 hours;
 
